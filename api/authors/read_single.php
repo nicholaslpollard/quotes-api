@@ -21,13 +21,21 @@ $db = $database->getConnection();
 // Create the Author object
 $author = new Author($db);
 
-// Retrieve all authors
-$authors = $author->read();
-
-// Check if authors are found
-if ($authors) {
-    echo json_encode($authors);
+// Get the ID from the URL (e.g., /authors/read_single.php?id=1)
+if (isset($_GET['id'])) {
+    $author->id = $_GET['id'];
 } else {
-    echo json_encode(array("message" => "No authors found."));
+    echo json_encode(array("message" => "Author ID is required."));
+    exit();
+}
+
+// Retrieve the single author data
+$author_data = $author->read_single();
+
+// Check if author is found
+if ($author_data) {
+    echo json_encode($author_data);
+} else {
+    echo json_encode(array("message" => "Author not found."));
 }
 ?>

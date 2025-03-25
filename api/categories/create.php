@@ -1,5 +1,4 @@
 <?php
-// Include CORS and error handling headers
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
@@ -21,13 +20,25 @@ $db = $database->getConnection();
 // Create the Category object
 $category = new Category($db);
 
-// Retrieve all categories
-$categories = $category->read();
+// Get the raw POST data (JSON)
+$data = json_decode(file_get_contents("php://input"));
 
-// Check if categories are found
-if ($categories) {
-    echo json_encode($categories);
+// Check if 'category' field is set
+if (!isset($data->category) || empty($data->category)) {
+    echo json_encode(["message" => "Category field is required"]);
+    exit();
+}
+
+// Set the Category object properties
+$category->category = $data->category;
+
+// Create the category
+if ($category->create()) {
+    echo json_encode(array("message" => "Category was created."));
 } else {
-    echo json_encode(array("message" => "No categories found."));
+    echo json_encode(array("message" => "Unable to create category."));
 }
 ?>
+
+
+

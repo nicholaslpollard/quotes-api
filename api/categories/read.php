@@ -10,24 +10,25 @@ if ($method === 'OPTIONS') {
     exit();
 }
 
-// Include the database and Quote model
+// Include the database and Category model
 include_once('../../config/Database.php');
-include_once('../../models/Quote.php');
+include_once('../../models/Category.php');
 
 // Initialize the database connection
 $database = new Database();
 $db = $database->getConnection();
 
-// Create the Quote object
-$quote = new Quote($db);
+// Create the Category object
+$category = new Category($db);
 
-// Retrieve all quotes
-$quotes = $quote->read();
+// Retrieve all categories
+$categories = $category->read();
 
-// Check if quotes are found
-if ($quotes) {
-    echo json_encode($quotes);
+// Check if categories are found
+if ($categories) {
+    echo json_encode($categories);
 } else {
-    echo json_encode(array("message" => "No quotes found."));
+    echo json_encode(array("message" => "No categories found."));
 }
 ?>
+

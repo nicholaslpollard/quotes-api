@@ -10,24 +10,25 @@ if ($method === 'OPTIONS') {
     exit();
 }
 
-// Include the database and Quote model
+// Include the database and Author model
 include_once('../../config/Database.php');
-include_once('../../models/Quote.php');
+include_once('../../models/Author.php');
 
 // Initialize the database connection
 $database = new Database();
 $db = $database->getConnection();
 
-// Create the Quote object
-$quote = new Quote($db);
+// Create the Author object
+$author = new Author($db);
 
-// Retrieve all quotes
-$quotes = $quote->read();
+// Retrieve all authors
+$authors = $author->read();
 
-// Check if quotes are found
-if ($quotes) {
-    echo json_encode($quotes);
+// Check if authors are found
+if ($authors) {
+    echo json_encode($authors);
 } else {
-    echo json_encode(array("message" => "No quotes found."));
+    echo json_encode(array("message" => "No authors found."));
 }
 ?>
+

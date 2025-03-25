@@ -21,13 +21,18 @@ $db = $database->getConnection();
 // Create the Quote object
 $quote = new Quote($db);
 
-// Retrieve all quotes
-$quotes = $quote->read();
-
-// Check if quotes are found
-if ($quotes) {
-    echo json_encode($quotes);
+// Get the ID from the URL (e.g., /quotes/delete.php?id=1)
+if (isset($_GET['id'])) {
+    $quote->id = $_GET['id'];
 } else {
-    echo json_encode(array("message" => "No quotes found."));
+    echo json_encode(array("message" => "Quote ID is required."));
+    exit();
+}
+
+// Delete the quote
+if ($quote->delete()) {
+    echo json_encode(array("message" => "Quote was deleted."));
+} else {
+    echo json_encode(array("message" => "Unable to delete quote."));
 }
 ?>

@@ -21,13 +21,20 @@ $db = $database->getConnection();
 // Create the Category object
 $category = new Category($db);
 
-// Retrieve all categories
-$categories = $category->read();
-
-// Check if categories are found
-if ($categories) {
-    echo json_encode($categories);
+// Get the ID from the URL (e.g., /categories/delete.php?id=1)
+if (isset($_GET['id'])) {
+    $category->id = $_GET['id'];
 } else {
-    echo json_encode(array("message" => "No categories found."));
+    echo json_encode(array("message" => "Category ID is required."));
+    exit();
+}
+
+// Delete the category
+if ($category->delete()) {
+    echo json_encode(array("message" => "Category was deleted."));
+} else {
+    echo json_encode(array("message" => "Unable to delete category."));
 }
 ?>
+
+

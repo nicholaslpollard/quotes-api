@@ -21,13 +21,22 @@ $db = $database->getConnection();
 // Create the Quote object
 $quote = new Quote($db);
 
-// Retrieve all quotes
-$quotes = $quote->read();
-
-// Check if quotes are found
-if ($quotes) {
-    echo json_encode($quotes);
+// Get the ID from the URL (e.g., /quotes/read_single.php?id=1)
+if (isset($_GET['id'])) {
+    $quote->id = $_GET['id'];
 } else {
-    echo json_encode(array("message" => "No quotes found."));
+    echo json_encode(array("message" => "Quote ID is required."));
+    exit();
+}
+
+// Retrieve the single quote data
+$quote_data = $quote->read_single();
+
+// Check if quote is found
+if ($quote_data) {
+    echo json_encode($quote_data);
+} else {
+    echo json_encode(array("message" => "Quote not found."));
 }
 ?>
+

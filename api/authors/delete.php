@@ -10,24 +10,31 @@ if ($method === 'OPTIONS') {
     exit();
 }
 
-// Include the database and Quote model
+// Include the database and Author model
 include_once('../../config/Database.php');
-include_once('../../models/Quote.php');
+include_once('../../models/Author.php');
 
 // Initialize the database connection
 $database = new Database();
 $db = $database->getConnection();
 
-// Create the Quote object
-$quote = new Quote($db);
+// Create the Author object
+$author = new Author($db);
 
-// Retrieve all quotes
-$quotes = $quote->read();
-
-// Check if quotes are found
-if ($quotes) {
-    echo json_encode($quotes);
+// Get the ID from the URL (e.g., /authors/delete.php?id=1)
+if (isset($_GET['id'])) {
+    $author->id = $_GET['id'];
 } else {
-    echo json_encode(array("message" => "No quotes found."));
+    echo json_encode(array("message" => "Author ID is required."));
+    exit();
+}
+
+// Delete the author
+if ($author->delete()) {
+    echo json_encode(array("message" => "Author was deleted."));
+} else {
+    echo json_encode(array("message" => "Unable to delete author."));
 }
 ?>
+
+
