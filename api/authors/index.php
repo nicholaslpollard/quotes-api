@@ -22,12 +22,20 @@ $db = $database->getConnection();
 $author = new Author($db);
 
 // Retrieve all authors
-$authors = $author->read();
+$stmt = $author->read();
+$num = $stmt->rowCount();
 
 // Check if authors are found
-if ($authors) {
-    echo json_encode($authors);
+if ($num > 0) {
+    $authors_arr = [];
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $authors_arr[] = $row;
+    }
+
+    echo json_encode($authors_arr);
 } else {
-    echo json_encode(array("message" => "No authors found."));
+    echo json_encode(["message" => "No authors found."]);
 }
+
 ?>
