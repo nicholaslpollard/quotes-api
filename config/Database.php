@@ -8,21 +8,12 @@ class Database {
     public $conn;
 
     public function __construct() {
-        // Check if running on Render (i.e., using environment variables)
-        if (getenv('RENDER')) {
-            $this->host = getenv('DB_HOST');
-            $this->db_name = getenv('DB_NAME');
-            $this->username = getenv('DB_USER');
-            $this->password = getenv('DB_PASS');
-            $this->port = getenv('DB_PORT');
-        } else {
-            // Local XAMPP/PostgreSQL settings
-            $this->host = "localhost";
-            $this->db_name = "quotesdb";
-            $this->username = "postgres";
-            $this->password = "admin";
-            $this->port = "5432"; // Default PostgreSQL port
-        }
+        // Use environment variables from Render
+        $this->host = getenv('DB_HOST');
+        $this->db_name = getenv('DB_NAME');
+        $this->username = getenv('DB_USER');
+        $this->password = getenv('DB_PASS');
+        $this->port = getenv('DB_PORT');
     }
 
     // Get the database connection
