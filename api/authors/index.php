@@ -11,8 +11,8 @@ if ($method === 'OPTIONS') {
 }
 
 // Include the database and Author model
-include_once('../../config/Database.php');
-include_once('../../models/Author.php');
+include_once(__DIR__ . '/../../config/Database.php');
+include_once(__DIR__ . '/../../models/Author.php');
 
 // Initialize the database connection
 $database = new Database();

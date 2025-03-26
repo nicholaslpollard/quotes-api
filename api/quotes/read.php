@@ -10,26 +10,28 @@ if ($method === 'OPTIONS') {
     exit();
 }
 
-// Include the database and Author model
+// Include the database and Quote model
 include_once('../../config/Database.php');
-include_once('../../models/Author.php');
+include_once('../../models/Quote.php');
 
 // Initialize the database connection
 $database = new Database();
 $db = $database->getConnection();
 
-// Create the Author object
-$author = new Author($db);
+// Create the Quote object
+$quote = new Quote($db);
 
-// Retrieve all authors
-$authors = $author->read();
+// Get filter parameters from the URL
+$author_id = isset($_GET['author_id']) ? $_GET['author_id'] : null;
+$category_id = isset($_GET['category_id']) ? $_GET['category_id'] : null;
 
-// Check if authors are found
-if ($authors) {
-    echo json_encode($authors);
+// Retrieve quotes based on filters
+$quotes = $quote->read($author_id, $category_id);
+
+// Check if any quotes are found
+if ($quotes) {
+    echo json_encode($quotes);  // Return the filtered quotes as JSON
 } else {
-    echo json_encode(array("message" => "No authors found."));
+    echo json_encode(array("message" => "No quotes found."));  // No quotes found
 }
 ?>
-
-

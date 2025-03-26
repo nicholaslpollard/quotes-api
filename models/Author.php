@@ -41,11 +41,18 @@ class Author {
     // Read all authors (for use in other CRUD operations like index or read)
     public function read() {
         $query = 'SELECT id, author FROM ' . $this->table;
-
+    
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
-
-        return $stmt;
+    
+        // Ensure $stmt is a valid PDOStatement object before calling rowCount()
+        if ($stmt instanceof PDOStatement) {
+            // Return the results as an associative array
+            return $stmt;
+        } else {
+            // Return an empty array if not a valid PDOStatement
+            return [];
+        }
     }
 
     // Read single author (for use in read_single.php)
@@ -57,6 +64,18 @@ class Author {
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Get author by ID (used when displaying quotes with author name instead of ID)
+    public function get_author_by_id() {
+        $query = 'SELECT author FROM ' . $this->table . ' WHERE id = :id LIMIT 1';
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $this->id);
+        $stmt->execute();
+
+        $author = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $author ? $author['author'] : null;  // return author name or null
     }
 
     // Update author
@@ -96,4 +115,5 @@ class Author {
     }
 }
 ?>
+
 

@@ -21,13 +21,17 @@ $db = $database->getConnection();
 // Create the Quote object
 $quote = new Quote($db);
 
-// Retrieve all quotes
-$quotes = $quote->read();
+// Get query parameters for filtering
+$author_id = isset($_GET['author_id']) ? $_GET['author_id'] : null;
+$category_id = isset($_GET['category_id']) ? $_GET['category_id'] : null;
 
-// Check if quotes are found
+// Retrieve filtered quotes
+$quotes = $quote->read($author_id, $category_id);
+
+// Check if any quotes are found
 if ($quotes) {
-    echo json_encode($quotes);
+    echo json_encode($quotes);  // Return the quotes as JSON
 } else {
-    echo json_encode(array("message" => "No quotes found."));
+    echo json_encode(array("message" => "No quotes found."));  // No quotes found
 }
 ?>

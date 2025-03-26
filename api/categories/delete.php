@@ -29,7 +29,7 @@ if (isset($_GET['id'])) {
     exit();
 }
 
-// Delete the category
+// Attempt to delete the category
 if ($category->delete()) {
     echo json_encode(array("message" => "Category was deleted."));
 } else {

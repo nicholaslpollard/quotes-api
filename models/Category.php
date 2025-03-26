@@ -56,6 +56,18 @@ class Category {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    // Get category by ID (used when displaying quotes with category name instead of ID)
+    public function get_category_by_id() {
+        $query = 'SELECT category FROM ' . $this->table . ' WHERE id = :id LIMIT 1';
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $this->id);
+        $stmt->execute();
+
+        $category = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $category ? $category['category'] : null;  // return category name or null
+    }
+
     // Update an existing category
     public function update() {
         $query = 'UPDATE ' . $this->table . ' SET category = :category WHERE id = :id';

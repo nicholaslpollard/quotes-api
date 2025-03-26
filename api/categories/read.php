@@ -31,4 +31,3 @@ if ($categories) {
     echo json_encode(array("message" => "No categories found."));
 }
 ?>
-

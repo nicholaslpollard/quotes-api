@@ -22,11 +22,23 @@ $db = $database->getConnection();
 $author = new Author($db);
 
 // Retrieve all authors
-$authors = $author->read();
+$stmt = $author->read();
+$num = $stmt->rowCount();  // rowCount() should now be valid on the PDOStatement
 
 // Check if authors are found
-if ($authors) {
-    echo json_encode($authors);
+if ($num > 0) {
+    $authors_arr = array();
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        extract($row);
+        $author_item = array(
+            "id" => $id,
+            "author" => $author  // Make sure this is the correct field in your table
+        );
+        array_push($authors_arr, $author_item);
+    }
+
+    // Return the authors as JSON
+    echo json_encode($authors_arr);
 } else {
     echo json_encode(array("message" => "No authors found."));
 }
