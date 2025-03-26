@@ -57,6 +57,10 @@ quotes-api/
 │   ├── Author.php
 │   ├── Category.php
 │   └── Quote.php
+├── apache.conf
+├── docker-compose.yml
+├── docker.md
+├── Dockerfile
 └── index.php
 
 ## Endpoints
