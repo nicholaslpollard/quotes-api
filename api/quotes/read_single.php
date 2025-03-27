@@ -9,7 +9,8 @@ if ($method === 'OPTIONS') {
     header('Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With');
     exit();
 }
-// Include the database and Quote model
+
+// Include the database and models for Quote, Author, and Category
 include_once('../../config/Database.php');
 include_once('../../models/Quote.php');
 include_once('../../models/Author.php');
@@ -19,54 +20,43 @@ include_once('../../models/Category.php');
 $database = new Database();
 $db = $database->getConnection();
 
-// Create new Quote, Author, and Category objects
+// Create new instances of Quote, Author, and Category classes
 $quote = new Quote($db);
 $author = new Author($db);
 $category = new Category($db);
 
-// Check if ID is provided
+// Check if ID is provided in the query parameters
 if (isset($_GET['id'])) {
     $quote->id = $_GET['id'];
-    
+
     // Call the read_single method to fetch the quote
     if ($quote->read_single()) {
-        // Fetch the full author and category details
+        // Set author ID and category ID from the quote data
         $author->id = $quote->author_id;
-        $author->read_single();  // Assuming this method fetches the author name
+        $author_data = $author->read_single();  // Assuming this method fetches the author's name
 
         $category->id = $quote->category_id;
-        $category->read_single();  // Assuming this method fetches the category name
+        $category_data = $category->read_single();  // Assuming this method fetches the category name
 
-        // Return the quote as a single JSON object with author and category names
-        echo json_encode(array(
-            "id" => $quote->id,
-            "quote" => $quote->quote,
-            "author" => $author->author,
-            "category" => $category->category
-        ));
+        // If author and category data are fetched successfully, return the quote
+        if ($author_data && $category_data) {
+            echo json_encode(array(
+                "id" => $quote->id,
+                "quote" => $quote->quote,
+                "author" => $author->author,  // Assuming the author's name is returned from read_single()
+                "category" => $category->category  // Assuming the category name is returned from read_single()
+            ));
+        } else {
+            // If author or category not found, return an error message
+            echo json_encode(array("message" => "Author or Category not found"));
+        }
     } else {
-        // If no quote was found, return a JSON object with a message
-        echo json_encode(array("message" => "No Quotes Found"));
+        // If no quote was found, return a message
+        echo json_encode(array("message" => "Quote not found"));
     }
-}
-// Check if both author_id and category_id are provided
-elseif (isset($_GET['author_id']) && isset($_GET['category_id'])) {
-    $quote->author_id = $_GET['author_id'];
-    $quote->category_id = $_GET['category_id'];
-    
-    // Call the read_by_author_and_category method to fetch quotes
-    $result = $quote->read_by_author_and_category();
-    
-    // Check if any quotes were found
-    if ($result) {
-        echo json_encode($result);
-    } else {
-        echo json_encode(array("message" => "No quotes found for the provided author_id and category_id."));
-    }
-} 
-// If neither is provided, return an error
-else {
-    echo json_encode(array("message" => "Quote ID or Author ID and Category ID are required."));
+} else {
+    // If ID is not provided, return an error message
+    echo json_encode(array("message" => "Quote ID is required"));
 }
 ?>
 

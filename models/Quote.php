@@ -115,7 +115,15 @@ class Quote {
         // Check if a quote is found
         if ($stmt->rowCount() > 0) {
             // Fetch the single quote as an associative array
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // Return the single quote data (including author and category)
+            return array(
+                "id" => $row['id'],
+                "quote" => $row['quote'],
+                "author" => $row['author'],
+                "category" => $row['category']
+            );
         }
 
         return false;  // No quote found
@@ -195,6 +203,3 @@ class Quote {
     }
 }
 ?>
-
-
-
