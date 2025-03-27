@@ -30,21 +30,24 @@ if (isset($_GET['id'])) {
     $quote->id = $_GET['id'];
 
     // Call the read_single method to fetch the quote
-    if ($quote->read_single()) {
+    $quote_obj = $quote->read_single();
+
+    // If the quote was found
+    if ($quote_obj) {
         // Set author ID and category ID from the quote data
-        $author->id = $quote->author_id;
+        $author->id = $quote_obj->author_id;
         $author_data = $author->read_single();  // Assuming this method fetches the author's name
 
-        $category->id = $quote->category_id;
+        $category->id = $quote_obj->category_id;
         $category_data = $category->read_single();  // Assuming this method fetches the category name
 
         // If author and category data are fetched successfully, return the quote
         if ($author_data && $category_data) {
             echo json_encode(array(
-                "id" => $quote->id,
-                "quote" => $quote->quote,
-                "author" => $author->author,  // Assuming the author's name is returned from read_single()
-                "category" => $category->category  // Assuming the category name is returned from read_single()
+                "id" => $quote_obj->id,
+                "quote" => $quote_obj->quote,
+                "author" => $author_data->author,  // Assuming the author's name is returned from read_single()
+                "category" => $category_data->category  // Assuming the category name is returned from read_single()
             ));
         } else {
             // If author or category not found, return an error message
