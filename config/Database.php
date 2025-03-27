@@ -8,12 +8,18 @@ class Database {
     public $conn;
 
     public function __construct() {
-        // Use environment variables from Render
+        // Use environment variables from Render (no defaults)
         $this->host = getenv('DB_HOST');
         $this->db_name = getenv('DB_NAME');
         $this->username = getenv('DB_USER');
         $this->password = getenv('DB_PASS');
         $this->port = getenv('DB_PORT');
+        
+        // Ensure all necessary environment variables are set
+        if (!$this->host || !$this->db_name || !$this->username || !$this->password || !$this->port) {
+            echo json_encode(array("message" => "Environment variables are missing."));
+            exit();
+        }
     }
 
     // Get the database connection
@@ -39,5 +45,6 @@ class Database {
     }
 }
 ?>
+
 
 
