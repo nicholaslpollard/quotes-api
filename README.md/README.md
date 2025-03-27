@@ -61,6 +61,7 @@ quotes-api/
 ├── docker-compose.yml
 ├── docker.md
 ├── Dockerfile
+├── .gitignore
 └── index.php
 
 ## Endpoints
@@ -111,5 +112,4 @@ All API endpoints were tested using Postman and in the browser.
 
 ---
 
-- **API URL**: `https://your-deployment-url.onrender.com/api`
 
