@@ -107,40 +107,25 @@ class Quote {
 
     // Read a single quote with the actual author and category names
     public function read_single() {
-        // Query to get a single quote with the actual author and category names
-        $query = 'SELECT q.id, q.quote, a.author, c.category 
-                  FROM ' . $this->table . ' q
+        $query = 'SELECT q.id, q.quote, q.author_id, q.category_id, a.author, c.category 
+                  FROM ' . $this->table . ' q 
                   LEFT JOIN authors a ON q.author_id = a.id
                   LEFT JOIN categories c ON q.category_id = c.id
-                  WHERE q.id = :id LIMIT 1';
-
-        // Prepare the statement
+                  WHERE q.id = :id
+                  LIMIT 1';
+    
+        // Prepare statement
         $stmt = $this->conn->prepare($query);
-
-        // Clean input
-        $this->id = htmlspecialchars(strip_tags($this->id));
-
-        // Bind the ID parameter
         $stmt->bindParam(':id', $this->id);
-
-        // Execute the query
         $stmt->execute();
-
-        // Check if a quote is found
+    
+        // Check if a quote was found
         if ($stmt->rowCount() > 0) {
-            // Fetch the single quote as an associative array
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            // Return a Quote object
-            $quote_obj = new Quote($this->conn);
-            $quote_obj->id = $row['id'];
-            $quote_obj->quote = $row['quote'];
-            $quote_obj->author = $row['author'];
-            $quote_obj->category = $row['category'];
-            return $quote_obj;
+            return $stmt->fetch(PDO::FETCH_OBJ); // Return the result as an object
         }
-
-        return false;  // No quote found
+    
+        return null;
     }
+    
 }
 ?>

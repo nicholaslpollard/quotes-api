@@ -35,17 +35,17 @@ if (isset($_GET['id'])) {
     // If the quote was found
     if ($quote_obj) {
         // Set author ID and category ID from the quote data
-        $author->id = $quote_obj['author_id'];  // Access author_id as a key of the array
+        $author->id = $quote_obj->author_id;  // Access author_id as a property of the object
         $author_data = $author->read_single();  // Fetch the author data
 
-        $category->id = $quote_obj['category_id'];  // Access category_id as a key of the array
+        $category->id = $quote_obj->category_id;  // Access category_id as a property of the object
         $category_data = $category->read_single();  // Fetch the category data
 
         // If author and category data are fetched successfully, return the quote
         if ($author_data && $category_data) {
             echo json_encode(array(
-                "id" => $quote_obj['id'],  // Access id as a key of the array
-                "quote" => $quote_obj['quote'],  // Access quote as a key of the array
+                "id" => $quote_obj->id,  // Access id as a property of the object
+                "quote" => $quote_obj->quote,  // Access quote as a property of the object
                 "author" => $author_data['author'],  // Access author's name from the array
                 "category" => $category_data['category']  // Access category's name from the array
             ));
