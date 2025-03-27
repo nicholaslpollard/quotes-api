@@ -62,4 +62,3 @@ if (isset($_GET['id'])) {
     echo json_encode(array("message" => "Quote ID is required"));
 }
 ?>
-

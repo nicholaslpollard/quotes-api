@@ -10,29 +10,25 @@ if ($method === 'OPTIONS') {
     exit();
 }
 
-// Include the database and Quote model
-include_once('../../config/Database.php');
-include_once('../../models/Quote.php');
+include_once '../../config/Database.php';
+include_once '../../models/Quote.php';
 
-// Initialize the database connection
 $database = new Database();
-$db = $database->getConnection();
+$db = $database->connect();
 
-// Create the Quote object
 $quote = new Quote($db);
+$data = json_decode(file_get_contents("php://input"));
 
-// Get the ID from the URL (e.g., /quotes/delete.php?id=1)
-if (isset($_GET['id'])) {
-    $quote->id = $_GET['id'];
+if (!empty($data->id)) {
+    $quote->id = $data->id;
+    
+    if ($quote->delete()) {
+        echo json_encode((object)["message" => "Quote deleted"]);
+    } else {
+        echo json_encode((object)["message" => "Quote not found"]);
+    }
 } else {
-    echo json_encode(array("message" => "Quote ID is required."));
-    exit();
-}
-
-// Delete the quote
-if ($quote->delete()) {
-    echo json_encode(array("id" => $quote->id));  // Return the id of the deleted quote
-} else {
-    echo json_encode(array("message" => "No Quotes Found"));
+    echo json_encode((object)["message" => "Missing required ID"]);
 }
 ?>
+
