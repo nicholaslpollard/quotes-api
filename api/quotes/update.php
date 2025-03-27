@@ -10,28 +10,43 @@ if ($method === 'OPTIONS') {
     exit();
 }
 
-include_once '../../config/Database.php';
-include_once '../../models/Quote.php';
+// Include the database and Quote model
+include_once('../../config/Database.php');
+include_once('../../models/Quote.php');
 
+// Initialize the database connection
 $database = new Database();
-$db = $database->connect();
+$db = $database->getConnection();
 
+// Create the Quote object
 $quote = new Quote($db);
 
+// Get the ID from the URL (e.g., /quotes/update.php?id=1)
+if (isset($_GET['id'])) {
+    $quote->id = $_GET['id'];
+} else {
+    echo json_encode((object)["message" => "Quote ID is required."]);
+    exit();
+}
+
+// Retrieve the posted data (JSON)
 $data = json_decode(file_get_contents("php://input"));
 
-if (!empty($data->id) && !empty($data->quote) && !empty($data->author_id) && !empty($data->category_id)) {
-    $quote->id = $data->id;
-    $quote->quote = $data->quote;
-    $quote->author_id = $data->author_id;
-    $quote->category_id = $data->category_id;
+// Check if required fields are set
+if (empty($data->author_id) || empty($data->category_id) || empty($data->quote)) {
+    echo json_encode((object)["message" => "Author ID, Category ID, and Quote text are required."]);
+    exit();
+}
 
-    if ($quote->update()) {
-        echo json_encode((object)["message" => "Quote updated"]);
-    } else {
-        echo json_encode((object)["message" => "Quote not found"]);
-    }
+// Set the Quote object properties
+$quote->author_id = $data->author_id;
+$quote->category_id = $data->category_id;
+$quote->quote = $data->quote;  // Use "quote" instead of "text"
+
+// Update the quote
+if ($quote->update()) {
+    echo json_encode((object)["message" => "Quote was updated."]);
 } else {
-    echo json_encode((object)["message" => "Missing required fields"]);
+    echo json_encode((object)["message" => "Unable to update quote."]);
 }
 ?>
