@@ -14,7 +14,7 @@ class Category {
 
     // Create a new category
     public function create() {
-        $query = 'INSERT INTO ' . $this->table . ' (category) VALUES (:category)';
+        $query = 'INSERT INTO ' . $this->table . ' (category) VALUES (:category) RETURNING id';
         
         // Prepare statement
         $stmt = $this->conn->prepare($query);
@@ -26,12 +26,19 @@ class Category {
         $stmt->bindParam(':category', $this->category);
 
         // Execute query
-        if ($stmt->execute()) {
-            return true;
+        try {
+            if ($stmt->execute()) {
+                // Get the last inserted id
+                $this->id = $stmt->fetchColumn();
+                return true;
+            }
+        } catch (PDOException $e) {
+            // Handle error with exception
+            echo json_encode(array("message" => "Error: " . $e->getMessage()));
+            return false;
         }
 
-        // Print error if something goes wrong
-        printf("Error: %s.\n", $stmt->errorInfo()[2]);
+        // If something goes wrong
         return false;
     }
 
@@ -39,9 +46,13 @@ class Category {
     public function read() {
         $query = 'SELECT id, category FROM ' . $this->table;
 
+        // Prepare statement
         $stmt = $this->conn->prepare($query);
+        
+        // Execute the query
         $stmt->execute();
 
+        // Return results
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -49,38 +60,67 @@ class Category {
     public function read_single() {
         $query = 'SELECT id, category FROM ' . $this->table . ' WHERE id = :id LIMIT 1';
 
+        // Prepare statement
         $stmt = $this->conn->prepare($query);
+
+        // Bind the ID parameter
         $stmt->bindParam(':id', $this->id);
+
+        // Execute the query
         $stmt->execute();
 
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        // Check if category was found
+        if ($stmt->rowCount() > 0) {
+            return $stmt->fetch(PDO::FETCH_ASSOC);  // Return the category data
+        }
+
+        // If no category found, return a custom error message
+        return array("message" => "Category not found");
     }
 
     // Get category by ID (used when displaying quotes with category name instead of ID)
     public function get_category_by_id() {
         $query = 'SELECT category FROM ' . $this->table . ' WHERE id = :id LIMIT 1';
 
+        // Prepare statement
         $stmt = $this->conn->prepare($query);
+
+        // Bind the ID parameter
         $stmt->bindParam(':id', $this->id);
+
+        // Execute the query
         $stmt->execute();
 
+        // Fetch category
         $category = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $category ? $category['category'] : null;  // return category name or null
+        return $category ? $category['category'] : null;  // Return category name or null
     }
 
     // Update an existing category
     public function update() {
         $query = 'UPDATE ' . $this->table . ' SET category = :category WHERE id = :id';
-
+        
+        // Prepare statement
         $stmt = $this->conn->prepare($query);
+
+        // Clean input
+        $this->category = htmlspecialchars(strip_tags($this->category));
+
+        // Bind values
         $stmt->bindParam(':category', $this->category);
         $stmt->bindParam(':id', $this->id);
 
-        if ($stmt->execute()) {
-            return true;
+        // Execute query
+        try {
+            if ($stmt->execute()) {
+                return true;
+            }
+        } catch (PDOException $e) {
+            // Handle error with exception
+            echo json_encode(array("message" => "Error: " . $e->getMessage()));
+            return false;
         }
 
-        printf("Error: %s.\n", $stmt->errorInfo()[2]);
         return false;
     }
 
@@ -88,17 +128,27 @@ class Category {
     public function delete() {
         $query = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
 
+        // Prepare statement
         $stmt = $this->conn->prepare($query);
+
+        // Bind the ID parameter
         $stmt->bindParam(':id', $this->id);
 
-        if ($stmt->execute()) {
-            return true;
+        // Execute the query
+        try {
+            if ($stmt->execute()) {
+                return true;
+            }
+        } catch (PDOException $e) {
+            // Handle error with exception
+            echo json_encode(array("message" => "Error: " . $e->getMessage()));
+            return false;
         }
 
-        printf("Error: %s.\n", $stmt->errorInfo()[2]);
         return false;
     }
 }
 ?>
+
 
 
