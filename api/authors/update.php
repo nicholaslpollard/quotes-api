@@ -22,19 +22,26 @@ $db = $database->getConnection();
 $author = new Author($db);
 
 // Get the ID from the URL (e.g., /authors/update.php?id=1)
-if (isset($_GET['id'])) {
-    $author->id = $_GET['id'];
-} else {
-    echo json_encode(array("message" => "Author ID is required."));
+if (!isset($_GET['id']) || empty($_GET['id'])) {
+    echo json_encode((object)["message" => "Author ID is required."]);
     exit();
 }
+
+$author->id = $_GET['id'];
 
 // Retrieve the posted data (JSON)
 $data = json_decode(file_get_contents("php://input"));
 
 // Check if required fields are set
 if (empty($data->author)) {
-    echo json_encode(array("message" => "Author field is required."));
+    echo json_encode((object)["message" => "Author field is required."]);
+    exit();
+}
+
+// Check if author exists before updating
+$existing_author = $author->read_single();
+if (!$existing_author) {
+    echo json_encode((object)["message" => "Author not found."]);
     exit();
 }
 
@@ -43,10 +50,11 @@ $author->author = $data->author;
 
 // Update the author
 if ($author->update()) {
-    echo json_encode(array("message" => "Author was updated."));
+    echo json_encode((object)[
+        "id" => $author->id,
+        "author" => $author->author
+    ]);
 } else {
-    echo json_encode(array("message" => "Unable to update author."));
+    echo json_encode((object)["message" => "Unable to update author."]);
 }
 ?>
-
-

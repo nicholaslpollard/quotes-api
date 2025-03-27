@@ -25,31 +25,24 @@ $data = json_decode(file_get_contents("php://input"));
 
 // Check if 'author' field is set
 if (!isset($data->author) || empty($data->author)) {
-    echo json_encode(["message" => "Missing Required Parameters"]);
+    echo json_encode((object)["message" => "Missing Required Parameters"]);
     exit();
 }
 
 // Set the Author object properties
 $author->author = $data->author;
 
-// Create the author (SQL query for inserting the new author)
-$query = "INSERT INTO authors (author) VALUES (:author)";
+// Create the author (SQL query update for PostgreSQL)
+$query = "INSERT INTO authors (author) VALUES (:author) RETURNING id";
 $stmt = $db->prepare($query);
 $stmt->bindParam(':author', $author->author);
 
-// Execute the query
+// Execute the query and return appropriate response
 if ($stmt->execute()) {
-    // Get the last inserted author ID
-    $author_id = $db->lastInsertId();
-
-    // Return the created author data with id and author fields
-    echo json_encode(array(
-        "id" => $author_id,  // Return the ID of the newly created author
-        "author" => $author->author  // Return the name of the newly created author
-    ));
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    echo json_encode((object)["id" => $result['id'], "author" => $author->author]);
 } else {
-    echo json_encode(array("message" => "Unable to create author."));
+    echo json_encode((object)["message" => "Unable to create author"]);
 }
 ?>
-
 

@@ -25,17 +25,15 @@ $author = new Author($db);
 if (isset($_GET['id'])) {
     $author->id = $_GET['id'];
 } else {
-    echo json_encode(array("message" => "Author ID is required."));
+    echo json_encode((object)["message" => "Author ID is required."]);
     exit();
 }
 
 // Delete the author
 if ($author->delete()) {
-    // Return a JSON object with the id of the deleted author
-    echo json_encode(array("id" => $author->id));
+    echo json_encode((object)["message" => "Author was deleted."]);
 } else {
-    echo json_encode(array("message" => "Unable to delete author."));
+    echo json_encode((object)["message" => "Unable to delete author."]);
 }
 ?>
-
 

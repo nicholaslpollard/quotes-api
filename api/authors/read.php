@@ -21,28 +21,14 @@ $db = $database->getConnection();
 // Create the Author object
 $author = new Author($db);
 
-// Retrieve all authors' IDs (modifying query to select only the `id` field)
-$query = "SELECT id FROM authors";  // Only select 'id' field
-$stmt = $db->prepare($query);
-
-// Execute the query
-$stmt->execute();
-$num = $stmt->rowCount();  // rowCount() should now be valid on the PDOStatement
+// Retrieve all authors
+$stmt = $author->read();
+$authors = $stmt->fetchAll(PDO::FETCH_OBJ); // Fetch as objects
 
 // Check if authors are found
-if ($num > 0) {
-    $authors_arr = array();
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        extract($row);
-        $author_item = array(
-            "id" => $id  // Only return the ID, no name
-        );
-        array_push($authors_arr, $author_item);
-    }
-
-    // Return the authors' IDs as JSON
-    echo json_encode($authors_arr);
+if (!empty($authors)) {
+    echo json_encode($authors);
 } else {
-    echo json_encode(array("message" => "No authors found."));
+    echo json_encode((object)["message" => "No authors found."]);
 }
 ?>
