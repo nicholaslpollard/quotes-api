@@ -23,32 +23,60 @@ $quote = new Quote($db);
 // Get the raw POST data (JSON)
 $data = json_decode(file_get_contents("php://input"));
 
-// Check if 'quote' field is set
-if (!isset($data->quote) || empty($data->quote)) {
-    echo json_encode(["message" => "Quote field is required"]);
-    exit();
-}
-
-// Check if 'author_id' is set and valid
-if (!isset($data->author_id) || empty($data->author_id)) {
-    echo json_encode(["message" => "Author ID is required"]);
-    exit();
-}
-
-// Check if 'category_id' is set and valid
-if (!isset($data->category_id) || empty($data->category_id)) {
-    echo json_encode(["message" => "Category ID is required"]);
+// Check if 'quote', 'author_id', and 'category_id' fields are set
+if (!isset($data->quote) || empty($data->quote) ||
+    !isset($data->author_id) || empty($data->author_id) ||
+    !isset($data->category_id) || empty($data->category_id)) {
+    echo json_encode(["message" => "Missing Required Parameters"]);
     exit();
 }
 
 // Set the Quote object properties
 $quote->quote = $data->quote;
 $quote->author_id = $data->author_id;
-$quote->category_id = $data->category_id;  // Assuming category_id is passed as part of the JSON
+$quote->category_id = $data->category_id;
 
-// Create the quote
-if ($quote->create()) {
-    echo json_encode(array("message" => "Quote was created."));
+// Check if author_id exists in authors table
+$author_check_query = "SELECT id FROM authors WHERE id = :author_id";
+$author_check_stmt = $db->prepare($author_check_query);
+$author_check_stmt->bindParam(':author_id', $quote->author_id);
+$author_check_stmt->execute();
+
+if ($author_check_stmt->rowCount() == 0) {
+    echo json_encode(["message" => "author_id Not Found"]);
+    exit();
+}
+
+// Check if category_id exists in categories table
+$category_check_query = "SELECT id FROM categories WHERE id = :category_id";
+$category_check_stmt = $db->prepare($category_check_query);
+$category_check_stmt->bindParam(':category_id', $quote->category_id);
+$category_check_stmt->execute();
+
+if ($category_check_stmt->rowCount() == 0) {
+    echo json_encode(["message" => "category_id Not Found"]);
+    exit();
+}
+
+// Create the quote (SQL query for inserting the new quote)
+$query = "INSERT INTO quotes (quote, author_id, category_id) VALUES (:quote, :author_id, :category_id)";
+$stmt = $db->prepare($query);
+$stmt->bindParam(':quote', $quote->quote);
+$stmt->bindParam(':author_id', $quote->author_id);
+$stmt->bindParam(':category_id', $quote->category_id);
+
+// Execute the query and return the created quote data with id, quote, author_id, and category_id fields
+if ($stmt->execute()) {
+    // Get the last inserted quote ID
+    $quote_id = $db->lastInsertId();
+
+    // Return the created quote data as JSON
+    echo json_encode(array(
+        "id" => $quote_id,  // Return the ID of the newly created quote
+        "quote" => $quote->quote,  // Return the quote
+        "author_id" => $quote->author_id,  // Return the author ID
+        "category_id" => $quote->category_id  // Return the category ID
+    ));
 } else {
     echo json_encode(array("message" => "Unable to create quote."));
 }

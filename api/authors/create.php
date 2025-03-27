@@ -25,21 +25,28 @@ $data = json_decode(file_get_contents("php://input"));
 
 // Check if 'author' field is set
 if (!isset($data->author) || empty($data->author)) {
-    echo json_encode(["message" => "Author field is required"]);
+    echo json_encode(["message" => "Missing Required Parameters"]);
     exit();
 }
 
 // Set the Author object properties
 $author->author = $data->author;
 
-// Create the author (SQL query update for PostgreSQL)
+// Create the author (SQL query for inserting the new author)
 $query = "INSERT INTO authors (author) VALUES (:author)";
 $stmt = $db->prepare($query);
 $stmt->bindParam(':author', $author->author);
 
-// Execute the query and return appropriate response
+// Execute the query
 if ($stmt->execute()) {
-    echo json_encode(array("message" => "Author was created."));
+    // Get the last inserted author ID
+    $author_id = $db->lastInsertId();
+
+    // Return the created author data with id and author fields
+    echo json_encode(array(
+        "id" => $author_id,  // Return the ID of the newly created author
+        "author" => $author->author  // Return the name of the newly created author
+    ));
 } else {
     echo json_encode(array("message" => "Unable to create author."));
 }

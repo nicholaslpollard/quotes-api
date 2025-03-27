@@ -21,8 +21,12 @@ $db = $database->getConnection();
 // Create the Author object
 $author = new Author($db);
 
-// Retrieve all authors
-$stmt = $author->read();
+// Retrieve all authors' IDs (modifying query to select only the `id` field)
+$query = "SELECT id FROM authors";  // Only select 'id' field
+$stmt = $db->prepare($query);
+
+// Execute the query
+$stmt->execute();
 $num = $stmt->rowCount();  // rowCount() should now be valid on the PDOStatement
 
 // Check if authors are found
@@ -31,16 +35,14 @@ if ($num > 0) {
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         extract($row);
         $author_item = array(
-            "id" => $id,
-            "author" => $author  // Make sure this is the correct field in your table
+            "id" => $id  // Only return the ID, no name
         );
         array_push($authors_arr, $author_item);
     }
 
-    // Return the authors as JSON
+    // Return the authors' IDs as JSON
     echo json_encode($authors_arr);
 } else {
     echo json_encode(array("message" => "No authors found."));
 }
 ?>
-

@@ -31,10 +31,12 @@ if (isset($_GET['id'])) {
 
 // Attempt to delete the category
 if ($category->delete()) {
-    echo json_encode(array("message" => "Category was deleted."));
+    // Return a JSON object with the id of the deleted category
+    echo json_encode(array("id" => $category->id));
 } else {
     echo json_encode(array("message" => "Unable to delete category."));
 }
 ?>
+
 
 

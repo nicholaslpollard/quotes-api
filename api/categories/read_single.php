@@ -2,13 +2,6 @@
 // Include CORS and error handling headers
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
-$method = $_SERVER['REQUEST_METHOD'];
-
-if ($method === 'OPTIONS') {
-    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
-    header('Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With');
-    exit();
-}
 
 // Include the database and Category model
 include_once('../../config/Database.php');
@@ -34,11 +27,17 @@ $category_data = $category->read_single();
 
 // Check if category is found
 if ($category_data) {
-    echo json_encode($category_data);
+    // Return category details in JSON format
+    echo json_encode(array(
+        "id" => $category_data['id'],  // Assuming read_single() returns an associative array with id and category fields
+        "category" => $category_data['category']
+    ));
 } else {
-    echo json_encode(array("message" => "Category not found."));
+    // If no category is found, return a message
+    echo json_encode(array("message" => "category_id Not Found"));
 }
 ?>
+
 
 
 

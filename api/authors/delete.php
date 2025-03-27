@@ -31,7 +31,8 @@ if (isset($_GET['id'])) {
 
 // Delete the author
 if ($author->delete()) {
-    echo json_encode(array("message" => "Author was deleted."));
+    // Return a JSON object with the id of the deleted author
+    echo json_encode(array("id" => $author->id));
 } else {
     echo json_encode(array("message" => "Unable to delete author."));
 }

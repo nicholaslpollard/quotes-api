@@ -2,13 +2,6 @@
 // Include CORS and error handling headers
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
-$method = $_SERVER['REQUEST_METHOD'];
-
-if ($method === 'OPTIONS') {
-    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
-    header('Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With');
-    exit();
-}
 
 // Include the database and Author model
 include_once('../../config/Database.php');
@@ -34,8 +27,14 @@ $author_data = $author->read_single();
 
 // Check if author is found
 if ($author_data) {
-    echo json_encode($author_data);
+    // Return author details in JSON format
+    echo json_encode(array(
+        "id" => $author_data['id'],  // Assuming read_single() returns an associative array with id and author fields
+        "author" => $author_data['author']
+    ));
 } else {
-    echo json_encode(array("message" => "Author not found."));
+    // If no author is found, return a message
+    echo json_encode(array("message" => "author_id Not Found"));
 }
 ?>
+

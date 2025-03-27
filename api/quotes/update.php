@@ -33,7 +33,7 @@ if (isset($_GET['id'])) {
 $data = json_decode(file_get_contents("php://input"));
 
 // Check if required fields are set
-if (empty($data->author_id) || empty($data->category_id) || empty($data->quote)) {  // Ensure field name is consistent
+if (empty($data->author_id) || empty($data->category_id) || empty($data->quote)) {
     echo json_encode(array("message" => "Author ID, Category ID, and Quote text are required."));
     exit();
 }
@@ -50,4 +50,3 @@ if ($quote->update()) {
     echo json_encode(array("message" => "Unable to update quote."));
 }
 ?>
-

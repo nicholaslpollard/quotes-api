@@ -31,8 +31,8 @@ if (isset($_GET['id'])) {
 
 // Delete the quote
 if ($quote->delete()) {
-    echo json_encode(array("message" => "Quote was deleted."));
+    echo json_encode(array("id" => $quote->id));  // Return the id of the deleted quote
 } else {
-    echo json_encode(array("message" => "Unable to delete quote."));
+    echo json_encode(array("message" => "No Quotes Found"));
 }
 ?>
