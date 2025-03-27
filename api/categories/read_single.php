@@ -2,6 +2,13 @@
 // Include CORS and error handling headers
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
+$method = $_SERVER['REQUEST_METHOD'];
+
+if ($method === 'OPTIONS') {
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+    header('Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With');
+    exit();
+}
 
 // Include the database and Category model
 include_once('../../config/Database.php');
@@ -14,29 +21,30 @@ $db = $database->getConnection();
 // Create the Category object
 $category = new Category($db);
 
-// Get the ID from the URL (e.g., /categories/read_single.php?id=1)
-if (isset($_GET['id'])) {
+// Get the ID from the URL
+if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $category->id = $_GET['id'];
 } else {
-    echo json_encode(array("message" => "Category ID is required."));
+    echo json_encode(["message" => "Category ID is required and must be a valid number."]);
     exit();
 }
 
 // Retrieve the single category data
-$category_data = $category->read_single();
+$query = "SELECT id, category FROM categories WHERE id = :id LIMIT 1";
+$stmt = $db->prepare($query);
+$stmt->bindParam(':id', $category->id, PDO::PARAM_INT);
+$stmt->execute();
+
+$category_data = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Check if category is found
 if ($category_data) {
-    // Return category details in JSON format
-    echo json_encode(array(
-        "id" => $category_data['id'],  // Assuming read_single() returns an associative array with id and category fields
-        "category" => $category_data['category']
-    ));
+    echo json_encode($category_data);
 } else {
-    // If no category is found, return a message
-    echo json_encode(array("message" => "category_id Not Found"));
+    echo json_encode(["message" => "Category not found."]);
 }
 ?>
+
 
 
 

@@ -1,5 +1,4 @@
 <?php
-// Include CORS and error handling headers
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
@@ -10,24 +9,25 @@ if ($method === 'OPTIONS') {
     exit();
 }
 
-// Include the database and Category model
 include_once('../../config/Database.php');
 include_once('../../models/Category.php');
 
-// Initialize the database connection
 $database = new Database();
 $db = $database->getConnection();
 
-// Create the Category object
 $category = new Category($db);
 
-// Retrieve all categories
-$categories = $category->read();
+$stmt = $category->read();
+$num = $stmt->rowCount();
 
-// Check if categories are found
-if ($categories) {
-    echo json_encode($categories);
+if ($num > 0) {
+    $categories_arr = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        extract($row);
+        $categories_arr[] = ["id" => $id, "category" => $category];
+    }
+    echo json_encode($categories_arr);
 } else {
-    echo json_encode(array("message" => "No categories found."));
+    echo json_encode(["message" => "No categories found."]);
 }
 ?>
